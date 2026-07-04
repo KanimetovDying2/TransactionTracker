@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { fetchTransactions } from "../features/transactions/transactionsSlice";
 import { fetchCategories } from "../features/categories/categoriesSlice";
@@ -9,17 +10,26 @@ import dayjs from "dayjs";
 import Spinner from "../components/Spinner";
 
 const HomePage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
   const transactions = useAppSelector((state) => state.transactions.items);
   const categories = useAppSelector((state) => state.categories.items);
   const isLoading = useAppSelector((state) => state.transactions.isLoading);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(
+    location.pathname === "/add-transaction",
+  );
 
   useEffect(() => {
     dispatch(fetchTransactions());
     dispatch(fetchCategories());
   }, [dispatch]);
+
+  useEffect(() => {
+    setIsModalOpen(location.pathname === "/add-transaction");
+  }, [location.pathname]);
 
   const handleAddTransaction = async (data: {
     category: string;
@@ -29,6 +39,11 @@ const HomePage = () => {
     await dispatch(addTransaction(data));
     setIsModalOpen(false);
     dispatch(fetchTransactions());
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    navigate("/");
   };
 
   const sortedTransactions = [...transactions].sort(
@@ -49,31 +64,56 @@ const HomePage = () => {
     );
 
   return (
-    <div>
-      <h1>Total: {total} KGS</h1>
-      <button onClick={() => setIsModalOpen(true)}>Add Transaction</button>
+    <div className="max-w-4xl mx-auto p-4">
+      <div className="bg-indigo-600 rounded-2xl p-8 mb-8 text-white shadow-xl">
+        <p className="text-indigo-100 text-sm font-medium uppercase tracking-wider mb-2">
+          Total Balance
+        </p>
+        <h1 className="text-5xl font-bold mb-4">
+          {total.toLocaleString()} KGS
+        </h1>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-white text-indigo-600 px-6 py-2 rounded-lg font-semibold hover:bg-indigo-50 transition shadow-sm"
+        >
+          + Add Transaction
+        </button>
+      </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <TransactionForm onSubmit={handleAddTransaction} />
       </Modal>
 
-      {sortedTransactions.map((t) => {
-        const category = categories.find((c) => c.id === t.category);
-        if (!category) return null;
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-gray-800">Recent Transactions</h2>
+        {sortedTransactions.map((t) => {
+          const category = categories.find((c) => c.id === t.category);
+          if (!category) return null;
 
-        const sign = category.type === "income" ? "+" : "-";
+          const isIncome = category.type === "income";
 
-        return (
-          <div key={t.id} className="border p-2 mb-2">
-            <span>{dayjs(t.createdAt).format("DD.MM.YYYY HH:mm:ss")}</span>
-            <span> {category.name} </span>
-            <span>
-              {sign}
-              {t.amount} KGS
-            </span>
-          </div>
-        );
-      })}
+          return (
+            <div
+              key={t.id}
+              className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+            >
+              <div className="flex flex-col">
+                <span className="font-semibold text-gray-800">
+                  {category.name}
+                </span>
+                <span className="text-xs text-gray-400">
+                  {dayjs(t.createdAt).format("DD MMM, HH:mm")}
+                </span>
+              </div>
+              <span
+                className={`font-bold text-lg ${isIncome ? "text-green-600" : "text-red-600"}`}
+              >
+                {isIncome ? "+" : "-"} {t.amount.toLocaleString()} KGS
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

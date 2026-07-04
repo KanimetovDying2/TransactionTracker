@@ -19,24 +19,29 @@ const TransactionForm = ({ onSubmit }: Props) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     const numAmount = parseFloat(amount);
 
     if (!category || !amount || numAmount < 1) {
-      alert("Transaction amount must be higher that 0");
+      alert("Transaction amount must be higher than 0");
       return;
     }
 
     onSubmit({
       category,
-      amount: parseFloat(amount),
+      amount: numAmount,
       createdAt: new Date().toISOString(),
     });
   };
 
+  const inputStyle =
+    "w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all";
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <h2 className="text-xl font-semibold mb-2">New Transaction</h2>
+
       <select
+        className={inputStyle}
         value={type}
         onChange={(e) => {
           setType(e.target.value as "income" | "expense");
@@ -48,6 +53,7 @@ const TransactionForm = ({ onSubmit }: Props) => {
       </select>
 
       <select
+        className={inputStyle}
         value={category}
         onChange={(e) => setCategory(e.target.value)}
         required
@@ -60,15 +66,28 @@ const TransactionForm = ({ onSubmit }: Props) => {
         ))}
       </select>
 
-      <input
-        type="number"
-        placeholder="Amount"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        required
-      />
-      <button type="submit">Save</button>
+      <div className="relative">
+        <input
+          className={`${inputStyle} pr-12`}
+          type="number"
+          placeholder="Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          required
+        />
+        <span className="absolute right-4 top-3.5 text-gray-400 font-medium">
+          KGS
+        </span>
+      </div>
+
+      <button
+        type="submit"
+        className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-md"
+      >
+        Save Transaction
+      </button>
     </form>
   );
 };
+
 export default TransactionForm;

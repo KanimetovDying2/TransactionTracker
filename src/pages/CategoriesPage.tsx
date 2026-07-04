@@ -25,14 +25,6 @@ const CategoriesPage = () => {
     dispatch(fetchCategories());
   }, [dispatch]);
 
-  if (error) return <div>Error!</div>;
-  if (isLoading)
-    return (
-      <div>
-        <Spinner />
-      </div>
-    );
-
   const handleAddCategory = async (data: {
     name: string;
     type: "income" | "expense";
@@ -42,10 +34,30 @@ const CategoriesPage = () => {
     dispatch(fetchCategories());
   };
 
+  if (error) return <div>Error!</div>;
+  if (isLoading)
+    return (
+      <div className="flex justify-center p-10">
+        <Spinner />
+      </div>
+    );
+
   return (
-    <div>
-      <h1>Categories!</h1>
-      <button onClick={() => setIsModalOpen(true)}>Add</button>
+    <div className="max-w-4xl mx-auto p-4">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Categories</h1>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition shadow-md"
+        >
+          + Add Category
+        </button>
+      </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <CategoryForm onSubmit={handleAddCategory} />
+      </Modal>
+
       <Modal
         isOpen={!!editingCategory}
         onClose={() => setEditingCategory(null)}
@@ -66,20 +78,41 @@ const CategoriesPage = () => {
         />
       </Modal>
 
-      {categories.map((cat) => (
-        <div key={cat.id} className="flex gap-4 items-center mb-2">
-          <span>
-            {cat.name} ({cat.type})
-          </span>
-          <button
-            onClick={() => dispatch(deleteCategory(cat.id))}
-            disabled={isDeleting}
+      <div className="grid gap-4">
+        {categories.map((cat) => (
+          <div
+            key={cat.id}
+            className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-indigo-200 transition"
           >
-            {isDeleting ? "..." : "Delete"}
-          </button>
-          <button onClick={() => setEditingCategory(cat)}>Edit</button>
-        </div>
-      ))}
+            <div className="flex items-center gap-4">
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${cat.type === "income" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+              >
+                {cat.type}
+              </span>
+              <span className="font-medium text-lg text-gray-700">
+                {cat.name}
+              </span>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setEditingCategory(cat)}
+                className="text-gray-500 hover:text-indigo-600 px-3 py-1 transition"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => dispatch(deleteCategory(cat.id))}
+                disabled={isDeleting}
+                className="text-gray-400 hover:text-red-600 px-3 py-1 transition"
+              >
+                {isDeleting ? "..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
