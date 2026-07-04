@@ -1,16 +1,31 @@
 import { useEffect, useState } from "react";
 import {
   addCategory,
+  deleteCategory,
   fetchCategories,
 } from "../features/categories/categoriesSlice";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import Modal from "../components/Modal";
 import CategoryForm from "../components/CategoryForm";
+import Spinner from "../components/Spinner";
 const CategoriesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const dispatch = useAppDispatch();
   const categories = useAppSelector((state) => state.categories.items);
+  const isDeleting = useAppSelector((state) => state.categories.isDeleting);
+  const error = useAppSelector((state) => state.categories.error);
+
+  if (error) return <div>Error! Error fetch data!</div>;
+
+  const isLoading = useAppSelector((state) => state.categories.isLoading);
+
+  if (isLoading)
+    return (
+      <div>
+        <Spinner />
+      </div>
+    );
 
   useEffect(() => {
     dispatch(fetchCategories());
@@ -35,8 +50,17 @@ const CategoriesPage = () => {
       </Modal>
 
       {categories.map((cat) => (
-        <div key={cat.id}>
-          {cat.name} ({cat.type})
+        <div key={cat.id} className="flex gap-4 items-center mb-2">
+          <span>
+            {cat.name} ({cat.type})
+          </span>
+
+          <button
+            onClick={() => dispatch(deleteCategory(cat.id))}
+            disabled={isDeleting}
+          >
+            {isDeleting ? "..." : "Delete"}
+          </button>
         </div>
       ))}
     </div>
