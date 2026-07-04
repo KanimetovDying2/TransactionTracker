@@ -29,9 +29,13 @@ const CategoriesPage = () => {
     name: string;
     type: "income" | "expense";
   }) => {
-    await dispatch(addCategory(data));
-    setIsModalOpen(false);
-    dispatch(fetchCategories());
+    try {
+      await dispatch(addCategory(data)).unwrap();
+      setIsModalOpen(false);
+      dispatch(fetchCategories());
+    } catch (e) {
+      alert("Не удалось добавить категорию");
+    }
   };
 
   if (error) return <div>Error!</div>;
@@ -69,10 +73,16 @@ const CategoriesPage = () => {
               : undefined
           }
           onSubmit={async (data) => {
-            if (editingCategory) {
-              await dispatch(updateCategory({ id: editingCategory.id, data }));
-              setEditingCategory(null);
-              dispatch(fetchCategories());
+            try {
+              if (editingCategory) {
+                await dispatch(
+                  updateCategory({ id: editingCategory.id, data }),
+                ).unwrap();
+                setEditingCategory(null);
+                dispatch(fetchCategories());
+              }
+            } catch (e) {
+              alert("Error. Can't save this category!");
             }
           }}
         />

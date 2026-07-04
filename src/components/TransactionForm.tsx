@@ -13,24 +13,29 @@ const TransactionForm = ({ onSubmit }: Props) => {
   const [category, setCategory] = useState("");
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<"income" | "expense">("expense");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const categories = useAppSelector((state) => state.categories.items);
   const filteredCategories = categories.filter((c) => c.type === type);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     const numAmount = parseFloat(amount);
 
     if (!category || !amount || numAmount < 1) {
       alert("Transaction amount must be higher than 0");
       return;
     }
-
-    onSubmit({
-      category,
-      amount: numAmount,
-      createdAt: new Date().toISOString(),
-    });
+    try {
+      await onSubmit({
+        category,
+        amount: numAmount,
+        createdAt: new Date().toISOString(),
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const inputStyle =
@@ -83,8 +88,9 @@ const TransactionForm = ({ onSubmit }: Props) => {
       <button
         type="submit"
         className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-md"
+        disabled={isSubmitting}
       >
-        Save Transaction
+        {isSubmitting ? "Saving..." : "Save Transaction"}
       </button>
     </form>
   );

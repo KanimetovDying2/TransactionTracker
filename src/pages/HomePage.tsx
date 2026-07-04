@@ -36,9 +36,14 @@ const HomePage = () => {
     amount: number;
     createdAt: string;
   }) => {
-    await dispatch(addTransaction(data));
-    setIsModalOpen(false);
-    dispatch(fetchTransactions());
+    try {
+      await dispatch(addTransaction(data)).unwrap();
+      setIsModalOpen(false);
+      navigate("/");
+      dispatch(fetchTransactions());
+    } catch (e) {
+      alert("Error! Can't add this transaction!");
+    }
   };
 
   const handleCloseModal = () => {

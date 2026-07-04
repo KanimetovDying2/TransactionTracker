@@ -27,7 +27,11 @@ export const fetchTransactions = createAsyncThunk<Transaction[], void>(
 export const addTransaction = createAsyncThunk(
   "transactions/add",
   async (data: ApiTransaction) => {
-    await axiosApi.post("/transactions.json", data);
+    try {
+      await axiosApi.post("/transactions.json", data);
+    } catch (e) {
+      throw e; 
+    }
   },
 );
 
