@@ -8,28 +8,27 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import Modal from "../components/Modal";
 import CategoryForm from "../components/CategoryForm";
 import Spinner from "../components/Spinner";
+
 const CategoriesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const dispatch = useAppDispatch();
+
   const categories = useAppSelector((state) => state.categories.items);
   const isDeleting = useAppSelector((state) => state.categories.isDeleting);
   const error = useAppSelector((state) => state.categories.error);
-
-  if (error) return <div>Error! Error fetch data!</div>;
-
   const isLoading = useAppSelector((state) => state.categories.isLoading);
 
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
+  if (error) return <div>Error!</div>;
   if (isLoading)
     return (
       <div>
         <Spinner />
       </div>
     );
-
-  useEffect(() => {
-    dispatch(fetchCategories());
-  }, [dispatch]);
 
   const handleAddCategory = async (data: {
     name: string;
@@ -44,7 +43,6 @@ const CategoriesPage = () => {
     <div>
       <h1>Categories!</h1>
       <button onClick={() => setIsModalOpen(true)}>Add</button>
-
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <CategoryForm onSubmit={handleAddCategory} />
       </Modal>
@@ -54,7 +52,6 @@ const CategoriesPage = () => {
           <span>
             {cat.name} ({cat.type})
           </span>
-
           <button
             onClick={() => dispatch(deleteCategory(cat.id))}
             disabled={isDeleting}
