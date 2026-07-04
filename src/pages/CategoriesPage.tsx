@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
-import { fetchCategories } from "../features/categories/categoriesSlice";
+import {
+  addCategory,
+  fetchCategories,
+} from "../features/categories/categoriesSlice";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import Modal from "../components/Modal";
+import CategoryForm from "../components/CategoryForm";
 const CategoriesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -12,13 +16,22 @@ const CategoriesPage = () => {
     dispatch(fetchCategories());
   }, [dispatch]);
 
+  const handleAddCategory = async (data: {
+    name: string;
+    type: "income" | "expense";
+  }) => {
+    await dispatch(addCategory(data));
+    setIsModalOpen(false);
+    dispatch(fetchCategories());
+  };
+
   return (
     <div>
       <h1>Categories!</h1>
       <button onClick={() => setIsModalOpen(true)}>Add</button>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <div>Skoro sdelay formy</div>
+        <CategoryForm onSubmit={handleAddCategory} />
       </Modal>
 
       {categories.map((cat) => (

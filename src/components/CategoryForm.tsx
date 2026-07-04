@@ -8,13 +8,18 @@ const CategoryForm = ({ onSubmit }: Props) => {
   const [name, setName] = useState("");
   const [type, setType] = useState<"income" | "expense">("expense");
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (name.trim().length === 0) {
+      alert("Please type something before sending!");
+      return;
+    }
+
+    onSubmit({ name: name.trim(), type });
+  };
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit({ name, type });
-      }}
-    >
+    <form onSubmit={handleSubmit}>
       <input
         value={name}
         onChange={(e) => setName(e.target.value)}

@@ -27,6 +27,13 @@ export const fetchCategories = createAsyncThunk(
   },
 );
 
+export const addCategory = createAsyncThunk(
+  "categories/add",
+  async (data: { name: string; type: "income" | "expense" }) => {
+    await axiosApi.post("/categories.json", data);
+  },
+);
+
 export const categoriesSlice = createSlice({
   name: "categories",
   initialState,
