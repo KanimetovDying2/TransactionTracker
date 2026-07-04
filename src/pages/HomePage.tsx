@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { fetchTransactions } from "../features/transactions/transactionsSlice";
+import {
+  deleteTransaction,
+  fetchTransactions,
+} from "../features/transactions/transactionsSlice";
 import { fetchCategories } from "../features/categories/categoriesSlice";
 import { addTransaction } from "../features/transactions/transactionsSlice";
 import TransactionForm from "../components/TransactionForm";
@@ -110,11 +113,22 @@ const HomePage = () => {
                   {dayjs(t.createdAt).format("DD MMM, HH:mm")}
                 </span>
               </div>
-              <span
-                className={`font-bold text-lg ${isIncome ? "text-green-600" : "text-red-600"}`}
-              >
-                {isIncome ? "+" : "-"} {t.amount.toLocaleString()} KGS
-              </span>
+
+              <div className="flex items-center gap-4">
+                <span
+                  className={`font-bold text-lg ${isIncome ? "text-green-600" : "text-red-600"}`}
+                >
+                  {isIncome ? "+" : "-"} {t.amount.toLocaleString()} KGS
+                </span>
+                <button
+                  onClick={() => {
+                    dispatch(deleteTransaction(t.id));
+                  }}
+                  className="text-gray-400 hover:text-red-600 transition font-bold p-1"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           );
         })}
