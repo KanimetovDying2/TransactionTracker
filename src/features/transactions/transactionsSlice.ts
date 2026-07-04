@@ -1,28 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosApi from "../../api/axiosAPi";
-
-export interface Transaction {
-  id: string;
-  category: string;
-  amount: number;
-  createdAt: string;
-}
-
-export interface ApiTransaction {
-  category: string;
-  amount: number;
-  createdAt: string;
-}
-
-export interface ApiTransactions {
-  [id: string]: ApiTransaction;
-}
-
-interface TransactionsState {
-  items: Transaction[];
-  isLoading: boolean;
-  error: boolean;
-}
+import type { ApiTransaction, ApiTransactions, Transaction, TransactionsState } from "../../types";
 
 const initialState: TransactionsState = {
   items: [],

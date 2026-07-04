@@ -19,7 +19,13 @@ const TransactionForm = ({ onSubmit }: Props) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!category || !amount) return;
+
+    const numAmount = parseFloat(amount);
+
+    if (!category || !amount || numAmount < 1) {
+      alert("Transaction amount must be higher that 0");
+      return;
+    }
 
     onSubmit({
       category,

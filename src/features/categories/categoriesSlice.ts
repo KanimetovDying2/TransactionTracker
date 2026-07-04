@@ -1,27 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosApi from "../../api/axiosAPi";
-
-interface Category {
-  id: string;
-  name: string;
-  type: "income" | "expense";
-}
-
-export interface ApiCategory {
-  name: string;
-  type: "income" | "expense";
-}
-
-export interface ApiCategories {
-  [id: string]: ApiCategory;
-}
-
-interface CategoriesState {
-  items: Category[];
-  isLoading: boolean;
-  isDeleting: boolean;
-  error: boolean;
-}
+import type {
+  ApiCategories,
+  ApiCategory,
+  ApiTransactions,
+  CategoriesState,
+  Category,
+} from "../../types";
 
 const initialState: CategoriesState = {
   items: [],
@@ -57,6 +42,21 @@ export const deleteCategory = createAsyncThunk(
   "categories/delete",
   async (id: string) => {
     await axiosApi.delete(`/categories/${id}.json`);
+
+    const response = await axiosApi.get<ApiTransactions | null>(
+      "/transactions.json",
+    );
+    const transactions = response.data;
+
+    if (transactions) {
+      const idsToDelete = Object.keys(transactions).filter(
+        (tId) => transactions[tId].category === id,
+      );
+
+      await Promise.all(
+        idsToDelete.map((tId) => axiosApi.delete(`/transactions/${tId}.json`)),
+      );
+    }
     return id;
   },
 );

@@ -3,14 +3,17 @@ import {
   addCategory,
   deleteCategory,
   fetchCategories,
+  updateCategory,
 } from "../features/categories/categoriesSlice";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import Modal from "../components/Modal";
 import CategoryForm from "../components/CategoryForm";
 import Spinner from "../components/Spinner";
+import type { Category } from "../types";
 
 const CategoriesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const dispatch = useAppDispatch();
 
   const categories = useAppSelector((state) => state.categories.items);
@@ -43,8 +46,24 @@ const CategoriesPage = () => {
     <div>
       <h1>Categories!</h1>
       <button onClick={() => setIsModalOpen(true)}>Add</button>
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <CategoryForm onSubmit={handleAddCategory} />
+      <Modal
+        isOpen={!!editingCategory}
+        onClose={() => setEditingCategory(null)}
+      >
+        <CategoryForm
+          initialData={
+            editingCategory
+              ? { name: editingCategory.name, type: editingCategory.type }
+              : undefined
+          }
+          onSubmit={async (data) => {
+            if (editingCategory) {
+              await dispatch(updateCategory({ id: editingCategory.id, data }));
+              setEditingCategory(null);
+              dispatch(fetchCategories());
+            }
+          }}
+        />
       </Modal>
 
       {categories.map((cat) => (
@@ -58,6 +77,7 @@ const CategoriesPage = () => {
           >
             {isDeleting ? "..." : "Delete"}
           </button>
+          <button onClick={() => setEditingCategory(cat)}>Edit</button>
         </div>
       ))}
     </div>

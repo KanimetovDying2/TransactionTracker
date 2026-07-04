@@ -2,11 +2,14 @@ import { useState } from "react";
 
 interface Props {
   onSubmit: (data: { name: string; type: "income" | "expense" }) => void;
+  initialData?: { name: string; type: "income" | "expense" };
 }
 
-const CategoryForm = ({ onSubmit }: Props) => {
-  const [name, setName] = useState("");
-  const [type, setType] = useState<"income" | "expense">("expense");
+const CategoryForm = ({ onSubmit, initialData }: Props) => {
+  const [name, setName] = useState(initialData?.name || "");
+  const [type, setType] = useState<"income" | "expense">(
+    initialData?.type || "expense",
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
